@@ -16,14 +16,13 @@ namespace ИМ_Лаб7
         {
             InitializeComponent();
 
+            chart2.Series[0].Points.Clear();
             chart1.Series[0].Points.Clear();
             chart1.Series[1].Points.Clear();
-            chart1.Series[2].Points.Clear();
-            price = (double)el_1.Value;
-            sales_rate = (double)el_2.Value;
+
+            chart2.Series[0].Points.AddXY(0, sales_rate);
             chart1.Series[0].Points.AddXY(0, price);
-            chart1.Series[1].Points.AddXY(0, sales_rate);
-            chart1.Series[2].Points.AddXY(0, bablo);
+            chart1.Series[1].Points.AddXY(0, profit);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -35,29 +34,36 @@ namespace ИМ_Лаб7
             }
             else
             {
+                price = (double)el_1.Value;
+                sales_rate = (double)el_2.Value;
+
                 timer1.Start();
                 bt_Start.Text = "Стоп";
             }
         }
 
         Random rnd = new Random();
-        double price = 0;
-        double sales_rate = 0;
-        const double car_mileage = 0.09;
-        const double car_warranty = 0.02;
-        const double equipment = 0.6;
-        const double advertisement = 0.8;
-        double bablo = 0;
+        int month = 0;
+        double price = 0, profit = 0, sales_rate = 0;
+        double prevProfit = 0, prevPrice = 0;
+        double car_mileage = 0.1, car_warranty = 0.09, equipment = 0.1, advertisement = 0.2;
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            price = price * (1 + advertisement * (rnd.NextDouble() - 0.5) * car_mileage * equipment);
-            sales_rate = sales_rate * (1 + car_warranty * (rnd.NextDouble() - 0.5) * car_mileage * price * advertisement);
-            bablo = price * sales_rate;
+            if (profit > prevProfit)
+                price -= car_mileage * equipment * advertisement * sales_rate / price;
+            else
+                price += car_mileage * equipment * advertisement * sales_rate / price;
+            sales_rate = car_mileage * car_warranty * advertisement * sales_rate / price;
 
-            chart1.Series[0].Points.AddXY(0, price);
-            chart1.Series[1].Points.AddXY(0, sales_rate);
-            chart1.Series[2].Points.AddXY(0, bablo);
+            el_1.Value = (decimal)price;
+            el_2.Value = (int)sales_rate;
+
+            chart2.Series[0].Points.AddXY(month, (int)sales_rate);
+            chart1.Series[0].Points.AddXY(month, price);
+            chart1.Series[1].Points.AddXY(month, profit);
+
+            month++;
         }
     }
 }
